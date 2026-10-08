@@ -1,0 +1,13 @@
+*.tar
+*.tar.gz
+*.zip
+*.secret
+*.conf
+warpscout-account.json
+last-success
+last-applied
+__pycache__/
+*.pyc
+work/
+state/
+output/

@@ -1,0 +1,67 @@
+name: Build ARM64 container
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Warpscout source repository
+        type: choice
+        options:
+          - niklzz/warpscout-tg
+          - vernette/warpscout
+        default: niklzz/warpscout-tg
+        required: true
+      ref:
+        description: Branch, tag or commit SHA
+        type: string
+        default: master
+        required: true
+      publish_release:
+        description: Publish container in GitHub Releases
+        type: boolean
+        default: true
+        required: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build and test
+        env:
+          WARPSCOUT_REPO: ${{ inputs.source }}
+          WARPSCOUT_REF: ${{ inputs.ref }}
+        run: |
+          docker buildx build --platform linux/arm64 --load \
+            --build-arg "WARPSCOUT_REPO=$WARPSCOUT_REPO" \
+            --build-arg "WARPSCOUT_REF=$WARPSCOUT_REF" \
+            -t warpscout-mikrotik:arm64 .
+      - name: Export image
+        run: |
+          docker save --output warpscout-mikrotik-arm64.tar warpscout-mikrotik:arm64
+          sha256sum warpscout-mikrotik-arm64.tar > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: warpscout-mikrotik-arm64
+          path: |
+            warpscout-mikrotik-arm64.tar
+            SHA256SUMS
+          retention-days: 30
+      - name: Publish release
+        if: ${{ inputs.publish_release }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WARPSCOUT_REPO: ${{ inputs.source }}
+          WARPSCOUT_REF: ${{ inputs.ref }}
+        run: |
+          container_id=$(docker create warpscout-mikrotik:arm64)
+          docker cp "$container_id:/app/source-commit.txt" source-commit.txt
+          docker rm "$container_id"
+          source_commit=$(cat source-commit.txt)
+          tag="arm64-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          printf 'ARM64 container for MikroTik.\n\nSource: %s\nRequested revision: %s\nSource commit: %s\nWrapper commit: %s\n\nDownload warpscout-mikrotik-arm64.tar and upload it to MikroTik. SHA256SUMS contains its checksum.\nMikroTik Envs are configured manually.\n' \
+            "$WARPSCOUT_REPO" "$WARPSCOUT_REF" "$source_commit" "$GITHUB_SHA" > release-notes.md
+          gh release create "$tag" warpscout-mikrotik-arm64.tar SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "ARM64: $WARPSCOUT_REPO ($tag)" --notes-file release-notes.md
