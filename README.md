@@ -81,7 +81,7 @@ docker save --output warpscout-mikrotik-arm64.tar warpscout-mikrotik:arm64
 /interface/bridge/port/add bridge=Bridge-Docker interface=WARPSCOUT
 /container/mounts/add list=warpscout src=/usb1/docker_configs/mihomo_mikrotik/awg dst=/output
 /container/mounts/add list=warpscout src=/usb1/docker_configs/warpscout/state dst=/state
-/container/envs/add list=warpscout key=SCAN_COMMAND value="scan -p awg -tg-only -exclude-node DME -conf warp_ru_5.conf"
+/container/envs/add list=warpscout key=SCAN_COMMAND value="scan -p awg -tg-only -exclude-node DME -conf warp.conf"
 /container/envs/add list=warpscout key=INTERVAL_SECONDS value="21600"
 /container/add name=warpscout file=usb1/warpscout-mikrotik-arm64.tar interface=WARPSCOUT dns=1.1.1.1,8.8.8.8 envlists=warpscout mountlists=warpscout root-dir=/usb1/docker/warpscout logging=yes start-on-boot=no workdir=/state
 ```
