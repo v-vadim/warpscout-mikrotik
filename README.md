@@ -1,9 +1,27 @@
 # warpscout-mikrotik
 
-Контейнер ARM64 для автоматического сканирования Cloudflare WARP с помощью
-[niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg), генерации AWG `.conf`
+Контейнер ARM64 для MikroTik: сканирование конечных точек Cloudflare WARP
+и генерация AWG `.conf`.
+
+При скачивании контейнера или сборке выберите один из двух источников:
+
+- [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg)
+- [vernette/warpscout](https://github.com/vernette/warpscout)
+
+В каждом образе используется один выбранный warpscout.
+
+## Скачать контейнер
+
+Откройте [Releases](https://github.com/v-vadim/warpscout-mikrotik/releases)
+и выберите релиз с нужным источником в названии.
+
+Скачайте `warpscout-mikrotik-arm64.tar` и загрузите файл на MikroTik.
+Файл `SHA256SUMS` содержит контрольную сумму контейнера.
 
 ## Настройки
+
+Задайте `SCAN_COMMAND` с параметрами, которые поддерживает выбранный
+warpscout. Приведённые ниже примеры команд относятся к `niklzz/warpscout-tg`.
 
 Envs, list=`warpscout`:
 
@@ -73,5 +91,9 @@ docker save --output warpscout-mikrotik-arm64.tar warpscout-mikrotik:arm64
 ## Лицензия и upstream
 
 Обёртка и скрипты этого репозитория — MIT, см. LICENSE.
-warpscout-tg — отдельный MIT-проект; его код скачивается при сборке.
-Авторство и лицензия upstream: [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg).
+
+Код выбранного warpscout скачивается при сборке.
+Авторство и условия лицензии указаны в исходных проектах:
+
+- [niklzz/warpscout-tg](https://github.com/niklzz/warpscout-tg)
+- [vernette/warpscout](https://github.com/vernette/warpscout)
